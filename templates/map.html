@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load leaflet_tags %}
+{% block title %}Map{% endblock %}
+{% block extraStuff %}
+    {% leaflet_css %}
+    {% leaflet_js %}
+    <style>
+      .leaflet-container {width: auto; height: 90vh; padding: 1rem; top: 55px;}
+    </style>
+{% endblock %}
+
+{% block header %}
+ <header id="header" style="background-color: #333333; color: white; position: fixed; top: 0; padding: 5px; font-size: x-large;
+width: 100%; left:0; right:0; z-index: 2000; vertical-align: center">
+    <div style="float: left; ">
+        Assignment 1 AWM2022 TU856
+    </div>
+    <div style="float: right" class="dropdown">
+        <a class="btn btn-secondary" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-bars"></i>
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/">Home</a>
+                <a class="dropdown-item" href="/map/">Map</a>
+                <a class="dropdown-item" href="/accounts/password_change/">Change Password</a>
+                <a class="dropdown-item" href="/accounts/update_details/">Update Details</a>
+                <a class="dropdown-item" href="/accounts/logout/">Log out</a>
+        </div>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+    {% leaflet_map "map"  callback="window.map_init_basic"%}
+<div class="toast" role="alert" aria-live="assertive" aria-atomic="true"
+ data-autohide="false">
+    <div class="toast-header">
+    <strong class="mr-auto">Current location</strong>
+    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    </div>
+    <div class="toast-body"></div>
+</div>
+
+{% endblock %}
+
+{% block extraScripts %}
+    {% leaflet_js %}
+
+    <script>
+        $("#body_div").css({"top": $("#header").height() + 10, "position": "absolute"});
+        $(".toast").css({
+            "top": ($(document).height() / 5),
+            "left": ($(document).width() / 5),
+            "position": "fixed",
+            "z-index": 2000
+        });
+    </script>
+    <script>
+    var host = location.protocol + '//' + location.host;
+    var locationMarker;
+    var circle;
+
+    $("#map").css({
+        "width": "100%",
+        "height": $(document).height() - ($("#header").height() + $("footer").height() + 45)
+    });
+
+    function map_init_basic(map){
+        var pos;
+        map.setView([53.5,-8.5], 11);
+        updateLocation(map);
+        map.on('touchstart click dblclick', function(e){
+            console.log("Pressed Map",e);
+            updateLocation(map);
+        });
+    }
+    function updateLocation(map){
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(pos){
+                    console.log("Got Location",pos);
+                    setMapToCurrentLocation(map, pos);
+                    update_db(pos);
+                },
+                function(error){
+                    console.log("Error getting location",error);
+                },
+                {enableHighAccuracy: true, timeout: 30000, maximumAge: 0}
+            )
+        }
+    }
+
+    function setMapToCurrentLocation(map, pos){
+        console.log("setting map to current location");
+        var myLatLng = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+        map.flyTo(myLatLng, 16);
+        if (locationMarker){
+            map.removeLayer(locationMarker);
+        }
+        if (circle){
+            map.removeLayer(circle);
+        }
+        locationMarker = L.marker(myLatLng).addTo(map);
+        circle = L.circle([pos.coords.latitude, pos.coords.longitude], {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.1,
+            radius: pos.coords.accuracy
+        }).addTo(map);
+
+        $(".toast-body").html("Latitude: " + pos.coords.latitude + "<br>Longitude: " + pos.coords.longitude + "<br>Accuracy: " + pos.coords.accuracy);
+        $(".toast").toast("show");
+    }
+
+    function update_db(pos){
+        console.log("updating db");
+        var locString = pos.coords.longitude + ", " + pos.coords.latitude;
+        $.ajax({
+            url: host + "/updatedb/",
+            type: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            data: {
+                point: locString
+            }
+        }).done(function(data){
+            console.log(data)
+            var toast = $(".toast");
+            toast.removeClass("bg-danger");
+            toast.addClass("bg-success");
+            $(".toast-body").html(data.message);
+            toast.toast("show");
+        }).fail(function(data){
+            var toast = $(".toast");
+            toast.removeClass("bg-success");
+            toast.addClass("bg-danger");
+            $(".toast-body").html("Failed to update location");
+            toast.toast("show");
+        }).always(function(data){
+            console.log(data);
+        });
+    }
+    </script>
+{% endblock %}

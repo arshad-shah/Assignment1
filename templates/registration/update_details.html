@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Details{% endblock %}
+
+{% block header %}
+ <header id="header" style="background-color: #333333; color: white; position: fixed; top: 0; padding: 5px; font-size: x-large;
+width: 100%; left:0; right:0; z-index: 2000; vertical-align: center">
+    <div style="float: left; ">
+        Assignment 1 AWM2022 TU856
+    </div>
+    <div style="float: right" class="dropdown">
+        <a class="btn btn-secondary" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-bars"></i>
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/">Home</a>
+                <a class="dropdown-item" href="/map/">Map</a>
+                <a class="dropdown-item" href="/accounts/password_change/">Change Password</a>
+                <a class="dropdown-item" href="/accounts/update_details/">Update Details</a>
+                <a class="dropdown-item" href="/accounts/logout/">Log out</a>
+        </div>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<form method="post" style="margin: 100px">
+<h2>Update Details</h2>
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="first_name">First Name</label>
+        <input type="text" class="form-control" id="first_name" name="first_name" value="">
+    </div>
+    <div class="form-group">
+        <label for="last_name">Last Name</label>
+        <input type="text" class="form-control" id="last_name" name="last_name" value="">
+    </div>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" name="email" value="">
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<form method="post" style="margin: 100px">
+<h2>Sign up</h2>
+{% csrf_token %}
+{#custom form using bootstrap#}
+{% for field in form %}
+<div class="form-group">
+    <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}*</label>
+    <input type="text" class="form-control" id="{{ field.id_for_label }}" name="{{ field.name }}" placeholder="{{ field.label }}" value="">
+    {% if field.errors %}
+    <div class="alert alert-danger" role="alert">
+        {% for error in field.errors %}
+        {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if field.help_text %}
+    <small id="{{ field.id_for_label }}" class="form-text text-muted">{{ field.help_text }}</small>
+    {% endif %}
+</div>
+{% endfor %}
+<button type="submit" class="btn btn-primary">Sign up</button>
+<p style="margin-top: 10px">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+</form>
+{% endblock %}

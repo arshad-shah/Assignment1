@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    <script>
+        window.location.href = "/home/";
+    </script>
+{% else %}
+{#    welcome#}
+    <p style="text-align: center; font-size: xx-large; margin-top: 100px">
+    Welcome to the home page of the website. This is a website for the
+    Assignment 1 of the course TU856 module advanced web mapping created by Arshad shah.
+    </p>
+  <p style="text-align: center; font-size: xx-large; margin-top: 100px">You are not logged in</p>
+  <div class="container">
+    <div class="row m-1">
+        <div class="col-md-12 p-1">
+            <div class="text-center">
+                <a href="{% url 'login' %}" class="btn btn-primary">login</a>
+            </div>
+        </div>
+        <div class="col-md-12 p-1">
+            <div class="text-center">
+                <a href="{% url 'signup' %}" class="btn btn-primary">signup</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
