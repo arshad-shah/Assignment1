@@ -9,17 +9,19 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+import json
+import os
+import socket
+import environ
 from pathlib import Path
+
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4e-$4+b6e@*03lbm022+9_@qpvt5g_b3-6$9e=1#aold*#=4z$'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -123,6 +125,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -144,3 +147,24 @@ LEAFLET_CONFIG = {
 
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
+
+if socket.gethostname() == "Arshad-Laptop":
+    DATABASES["default"]["HOST"] = "localhost"
+    DATABASES["default"]["PORT"] = env("POSTGIS_PORT")
+else:
+    DATABASES["default"]["HOST"] = f"{env('PROJECT_NAME')}-postgis"
+    DATABASES["default"]["PORT"] = 5432
+
+# Set DEPLOY_SECURE to True only for LIVE deployment
+if env("DEPLOY_SECURE"):
+    DEBUG = False
+    TEMPLATES[0]["OPTIONS"]["debug"] = False
+    ALLOWED_HOSTS = ['awmassignment1.arshadshah.com', 'localhost', '127.0.0.1']
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+else:
+    DEBUG = True
+    TEMPLATES[0]["OPTIONS"]["debug"] = True
+    ALLOWED_HOSTS = ['*', ]
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
