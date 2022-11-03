@@ -34,12 +34,14 @@ SHELL ["/bin/bash", "--login", "-c"]
 RUN conda config --add channels conda-forge && conda config --set channel_priority strict
 RUN cat ~/.condarc
 RUN conda install uwsgi
+RUN conda install django
 
 # Copy everything in your Django project to the image.
 COPY . /usr/src/app
 
 # Make sure that static files are up to date and available
 #wont work investigating this
+#RUN python manage.py help
 #RUN python manage.py collectstatic --no-input
 
 # Expose port 8001 on the image. We'll map a localhost port to this later.
