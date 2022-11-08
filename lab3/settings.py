@@ -159,7 +159,7 @@ else:
 if env("DEPLOY_SECURE"):
     DEBUG = False
     TEMPLATES[0]["OPTIONS"]["debug"] = False
-    ALLOWED_HOSTS = ['awmassignment1.arshadshah.com', 'localhost', '127.0.0.1']
+    ALLOWED_HOSTS = ['arshadshah.online','www.arshadshah.online' , 'localhost', '127.0.0.1']
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
 else:
